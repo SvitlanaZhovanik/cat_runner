@@ -1368,18 +1368,18 @@ export default function CatRunner({
 
       {/* Screen Overlays depending on state */}
       {gameState === GameState.START && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/45 backdrop-blur-xs text-center p-6 select-none animate-fade-in">
-          <div className="bg-white/95 p-6 rounded-2xl shadow-2xl border-4 border-amber-400 max-w-sm flex flex-col items-center transform scale-100 transition-transform">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-3xl mb-4 animate-bounce">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/45 backdrop-blur-xs text-center p-3 select-none animate-fade-in">
+          <div className="bg-white/95 p-4 md:p-6 rounded-2xl shadow-2xl border-4 border-amber-400 max-w-sm w-full max-h-[95%] overflow-y-auto flex flex-col items-center transform scale-100 transition-transform">
+            <div className="w-10 h-10 md:w-16 md:h-16 bg-amber-100 rounded-full flex items-center justify-center text-xl md:text-3xl mb-2 md:mb-4 animate-bounce">
               🐱
             </div>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight mb-2">Кіт-Раннер</h1>
-            <p className="text-xs text-slate-600 mb-5 leading-relaxed">
+            <h1 className="text-lg md:text-2xl font-black text-slate-800 tracking-tight mb-1 md:mb-2">Кіт-Раннер</h1>
+            <p className="text-[10px] md:text-xs text-slate-600 mb-3 md:mb-5 leading-relaxed">
               Керуй милим котиком! Перестрибуй через коробки і клубочки ниток, пригинайся під метеликами та збирай смачні рибки!
             </p>
 
-            <div className="text-left w-full text-xs space-y-1.5 bg-amber-50 p-3 rounded-lg border border-amber-100 mb-5 text-slate-700">
-              <div className="font-bold text-amber-800 mb-1">🎮 Керування:</div>
+            <div className="text-left w-full text-[10px] md:text-xs space-y-1 bg-amber-50 p-2 md:p-3 rounded-lg border border-amber-100 mb-3 md:mb-5 text-slate-700">
+              <div className="font-bold text-amber-800 mb-0.5 md:mb-1">🎮 Керування:</div>
               <div>• <span className="font-semibold text-amber-900">Пробіл / Стрілка Вгору / Клік вгорі</span> — Стрибок</div>
               <div>• <span className="font-semibold text-amber-900">Стрілка Вниз / Затиснути внизу</span> — Присісти</div>
             </div>
@@ -1387,7 +1387,7 @@ export default function CatRunner({
             <button
               id="start-game-btn"
               onClick={startGame}
-              className="w-full py-3 px-6 text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+              className="w-full py-2 md:py-3 px-4 md:px-6 text-xs md:text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
             >
               Грати зараз! 🐾
             </button>
@@ -1396,42 +1396,42 @@ export default function CatRunner({
       )}
 
       {gameState === GameState.GAME_OVER && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-rose-950/40 backdrop-blur-xs text-center p-6 select-none">
-          <div className="bg-white/95 p-6 rounded-2xl shadow-2xl border-4 border-rose-400 max-w-sm flex flex-col items-center">
-            <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center text-3xl mb-4">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-rose-950/40 backdrop-blur-xs text-center p-3 select-none">
+          <div className="bg-white/95 p-4 md:p-6 rounded-2xl shadow-2xl border-4 border-rose-400 max-w-sm w-full max-h-[95%] overflow-y-auto flex flex-col items-center">
+            <div className="w-10 h-10 md:w-16 md:h-16 bg-rose-100 rounded-full flex items-center justify-center text-xl md:text-3xl mb-2 md:mb-4">
               😿
             </div>
-            <h2 className="text-2xl font-black text-rose-600 tracking-tight mb-1">Ой! Котик стомився</h2>
-            <p className="text-xs text-slate-500 mb-4 font-semibold">
+            <h2 className="text-lg md:text-2xl font-black text-rose-600 tracking-tight mb-0.5 md:mb-1">Ой! Котик стомився</h2>
+            <p className="text-[10px] md:text-xs text-slate-500 mb-2 md:mb-4 font-semibold">
               Зіткнення з перешкодою!
             </p>
 
             {/* Score Summary */}
-            <div className="grid grid-cols-2 gap-4 w-full p-3 bg-slate-50 border border-slate-100 rounded-xl mb-5 text-center">
+            <div className="grid grid-cols-2 gap-2 md:gap-4 w-full p-2 md:p-3 bg-slate-50 border border-slate-100 rounded-xl mb-3 md:mb-5 text-center">
               <div className="flex flex-col items-center justify-center border-r border-slate-200">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Рахунок</span>
-                <span className="text-xl font-extrabold text-slate-800">{currentScore}</span>
+                <span className="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-bold">Рахунок</span>
+                <span className="text-base md:text-xl font-extrabold text-slate-800">{currentScore}</span>
               </div>
               <div className="flex flex-col items-center justify-center">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Рибки</span>
-                <span className="text-xl font-extrabold text-amber-500 flex items-center gap-1">
-                  +{sessionFish} <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span className="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-bold">Рибки</span>
+                <span className="text-base md:text-xl font-extrabold text-amber-500 flex items-center gap-1">
+                  +{sessionFish} <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-amber-400 animate-pulse" />
                 </span>
               </div>
             </div>
 
             {currentScore >= highScore && currentScore > 0 && (
-              <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 mb-4 animate-bounce">
-                <Trophy className="w-4 h-4" /> Новий рекорд!
+              <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-emerald-100 mb-3 md:mb-4 animate-bounce">
+                <Trophy className="w-3.5 h-3.5" /> Новий рекорд!
               </div>
             )}
 
             <button
               id="restart-game-btn"
               onClick={startGame}
-              className="w-full py-3 px-6 text-sm font-bold text-white bg-rose-500 rounded-xl hover:bg-rose-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2 md:py-3 px-4 md:px-6 text-xs md:text-sm font-bold text-white bg-rose-500 rounded-xl hover:bg-rose-600 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4" /> Спробувати знову!
+              <RotateCcw className="w-3.5 h-3.5 md:w-4 md:h-4" /> Спробувати знову!
             </button>
           </div>
         </div>
@@ -1444,10 +1444,10 @@ export default function CatRunner({
           <button
             onTouchStart={(e) => { e.preventDefault(); handleJump(); }}
             onMouseDown={(e) => { e.preventDefault(); handleJump(); }}
-            className="pointer-events-auto w-14 h-14 rounded-full bg-slate-900/50 hover:bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
+            className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-900/60 hover:bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center text-white text-[8px] md:text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
             title="Стрибок (Space)"
           >
-            <ArrowUp className="w-4 h-4 text-amber-300" />
+            <ArrowUp className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-300" />
             <span className="tracking-tighter">СТРИБОК</span>
           </button>
 
@@ -1458,10 +1458,10 @@ export default function CatRunner({
             onMouseDown={(e) => { e.preventDefault(); handleDuck(true); }}
             onMouseUp={(e) => { e.preventDefault(); handleDuck(false); }}
             onMouseLeave={() => handleDuck(false)}
-            className="pointer-events-auto w-14 h-14 rounded-full bg-slate-900/50 hover:bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
+            className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-900/60 hover:bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center text-white text-[8px] md:text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
             title="Присісти (Arrow Down)"
           >
-            <ArrowDown className="w-4 h-4 text-amber-300" />
+            <ArrowDown className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-300" />
             <span className="tracking-tighter">ПРИСІСТИ</span>
           </button>
         </div>

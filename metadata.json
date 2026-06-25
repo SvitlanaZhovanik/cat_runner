@@ -1,0 +1,6 @@
+{
+  "name": "Кіт-Раннер",
+  "description": "Симпатична та динамічна гра-раннер про котика, який перестрибує через клубки ниток, коробки та збирає рибку!",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

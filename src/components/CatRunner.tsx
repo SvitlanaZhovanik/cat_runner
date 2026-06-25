@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { GameState, CatSkin, Obstacle, FishTreat, Particle } from "../types";
 import { synth } from "./AudioSynth";
-import { Award, RotateCcw, Volume2, VolumeX, Sparkles, Trophy } from "lucide-react";
+import { Award, RotateCcw, Volume2, VolumeX, Sparkles, Trophy, ArrowUp, ArrowDown } from "lucide-react";
 
 interface CatRunnerProps {
   gameState: GameState;
@@ -269,24 +269,45 @@ export default function CatRunner({
           let width = 36;
           let obsY = s.groundY - height;
 
-          if (rand < 0.3) {
+          if (rand < 0.22) {
+            // Cardboard Box
+            type = "box";
+            width = 36;
+            height = 36;
+            obsY = s.groundY - height;
+          } else if (rand < 0.40) {
+            // Yarn ball
             type = "yarn";
             width = 40;
             height = 40;
             obsY = s.groundY - height;
           } else if (rand < 0.55) {
+            // Scratch post
             type = "scratch_post";
             width = 28;
             height = 54;
             obsY = s.groundY - height;
-          } else if (rand < 0.8) {
-            // Flying butterfly or bird - can spawn high or low
+          } else if (rand < 0.70) {
+            // Flying butterfly/bird
             type = "bird";
             width = 34;
             height = 24;
-            // Spawn height either requires jumping or ducking
-            const highSpawn = Math.random() > 0.4;
-            obsY = highSpawn ? s.groundY - 75 : s.groundY - 45; 
+            // Spawn low (requires ducking!) or high (requires jumping!)
+            // Make low-flying (ducking) very common for birds
+            const requiresDucking = Math.random() > 0.35;
+            obsY = requiresDucking ? s.groundY - 45 : s.groundY - 78;
+          } else if (rand < 0.85) {
+            // Cozy overhead hanging lamp (requires ducking!)
+            type = "hanging_lamp";
+            width = 32;
+            height = 76; // drops from top down to groundY - 30
+            obsY = s.groundY - 106; // bottom edge will be at s.groundY - 30, so cat can only pass if ducked (height 28)
+          } else {
+            // Dangling rubber band toy mouse (requires ducking!)
+            type = "toy_mouse_dangling";
+            width = 24;
+            height = 72; // bottom edge at s.groundY - 30
+            obsY = s.groundY - 102;
           }
 
           s.obstacles.push({
@@ -295,7 +316,7 @@ export default function CatRunner({
             width,
             height,
             type,
-            speedMultiplier: type === "bird" ? 1.15 : 1.0,
+            speedMultiplier: (type === "bird" || type === "toy_mouse_dangling") ? 1.15 : 1.0,
             rotation: 0,
             pulse: 0,
           });
@@ -462,10 +483,9 @@ export default function CatRunner({
           }
         }
 
-        // Sync React scores gently using functional updates to bypass stale closures
-        const floorScore = Math.floor(s.score);
-        setCurrentScore((prev) => (prev !== floorScore ? floorScore : prev));
-        setSessionFish((prev) => (prev !== s.fishCollectedThisRun ? s.fishCollectedThisRun : prev));
+        // No high-frequency React state setters here to avoid laggy React re-renders.
+        // Canvas HUD reads directly from ref s.score and s.fishCollectedThisRun,
+        // and we sync these to React state once on Game Over.
       }
 
       // DRAWING PIPELINE
@@ -562,47 +582,120 @@ export default function CatRunner({
       ctx.stroke();
 
       // Layer 1 Parallax: Domestic shelf with Cat elements
-      ctx.fillStyle = "#cca47e"; // Soft brown shelf wood
+      ctx.fillStyle = "#a16207"; // Rich wood color for shelf
       const shelfY = 120;
-      ctx.fillRect(0 - s.bgOffsetShelf, shelfY, canvas.width * 2, 8);
+      ctx.fillRect(0, shelfY, canvas.width, 8); // draw shelf across whole screen so it's continuous
       
       // Draw cute things on shelves
-      for (let i = 0; i < 5; i++) {
-        const itemX = (i * 220 - s.bgOffsetShelf) % (canvas.width + 100);
-        if (itemX > -50 && itemX < canvas.width + 50) {
-          // Decorative books
-          ctx.fillStyle = i % 2 === 0 ? "#ec4899" : "#3b82f6";
-          ctx.fillRect(itemX, shelfY - 24, 10, 24);
-          ctx.fillStyle = i % 2 === 0 ? "#10b981" : "#f59e0b";
-          ctx.fillRect(itemX + 11, shelfY - 20, 8, 20);
+      for (let i = 0; i < 6; i++) {
+        // Correct looping coordinates for smooth movement
+        let itemX = (i * 180 - s.bgOffsetShelf) % (canvas.width + 120);
+        if (itemX < -100) itemX += (canvas.width + 120);
 
-          // Cozy plant pot
-          ctx.fillStyle = "#ea580c"; // Terracotta pot
-          ctx.beginPath();
-          ctx.moveTo(itemX + 30, shelfY);
-          ctx.lineTo(itemX + 26, shelfY - 14);
-          ctx.lineTo(itemX + 44, shelfY - 14);
-          ctx.lineTo(itemX + 40, shelfY);
-          ctx.closePath();
-          ctx.fill();
-          // Green leaves
-          ctx.fillStyle = "#22c55e";
-          ctx.beginPath();
-          ctx.ellipse(itemX + 35, shelfY - 20, 6, 12, -Math.PI / 4, 0, Math.PI * 2);
-          ctx.ellipse(itemX + 35, shelfY - 20, 6, 12, Math.PI / 4, 0, Math.PI * 2);
-          ctx.fill();
+        if (itemX > -60 && itemX < canvas.width + 60) {
+          if (i % 3 === 0) {
+            // Group of books (different heights, standing and leaning!)
+            // Book 1 (vertical)
+            ctx.fillStyle = "#2563eb"; // Blue
+            ctx.fillRect(itemX, shelfY - 26, 9, 26);
+            ctx.fillStyle = "#1e3a8a"; // Spine label accent
+            ctx.fillRect(itemX + 2, shelfY - 22, 5, 4);
+
+            // Book 2 (vertical)
+            ctx.fillStyle = "#f43f5e"; // Rose
+            ctx.fillRect(itemX + 10, shelfY - 22, 11, 22);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(itemX + 13, shelfY - 18, 5, 3);
+
+            // Book 3 (leaning book!)
+            ctx.save();
+            ctx.translate(itemX + 21, shelfY);
+            ctx.rotate(0.22); // leaning angle
+            ctx.fillStyle = "#10b981"; // Emerald green leaning book
+            ctx.fillRect(0, -24, 8, 24);
+            ctx.fillStyle = "#f59e0b";
+            ctx.fillRect(2, -20, 4, 3);
+            ctx.restore();
+          } else if (i % 3 === 1) {
+            // Cozy plant pot with cascading trailing green vines!
+            ctx.fillStyle = "#ea580c"; // Terracotta pot
+            ctx.beginPath();
+            ctx.moveTo(itemX + 20, shelfY);
+            ctx.lineTo(itemX + 16, shelfY - 15);
+            ctx.lineTo(itemX + 34, shelfY - 15);
+            ctx.lineTo(itemX + 30, shelfY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Broad leaves
+            ctx.fillStyle = "#15803d"; // Dark Green
+            ctx.beginPath();
+            ctx.ellipse(itemX + 25, shelfY - 20, 5, 9, -Math.PI / 3, 0, Math.PI * 2);
+            ctx.ellipse(itemX + 25, shelfY - 20, 5, 9, Math.PI / 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cascading vines hanging down the shelf!
+            ctx.strokeStyle = "#16a34a"; // vine stems
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(itemX + 25, shelfY - 10);
+            ctx.quadraticCurveTo(itemX + 20, shelfY + 12, itemX + 23, shelfY + 28);
+            ctx.moveTo(itemX + 28, shelfY - 10);
+            ctx.quadraticCurveTo(itemX + 32, shelfY + 16, itemX + 30, shelfY + 34);
+            ctx.stroke();
+
+            // Little vine leaves
+            ctx.fillStyle = "#22c55e";
+            ctx.beginPath();
+            ctx.arc(itemX + 21, shelfY + 8, 3, 0, Math.PI * 2);
+            ctx.arc(itemX + 24, shelfY + 20, 2.5, 0, Math.PI * 2);
+            ctx.arc(itemX + 31, shelfY + 12, 3, 0, Math.PI * 2);
+            ctx.arc(itemX + 29, shelfY + 26, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // Cute framed photo
+            // Picture frame wood
+            ctx.fillStyle = "#78350f";
+            ctx.fillRect(itemX + 10, shelfY - 24, 22, 24);
+            // Polaroid white inner
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(itemX + 12, shelfY - 22, 18, 20);
+            // Cute heart or cat silhouette in the frame
+            ctx.fillStyle = "#ef4444"; // red heart
+            ctx.beginPath();
+            ctx.moveTo(itemX + 21, shelfY - 14);
+            ctx.bezierCurveTo(itemX + 18, shelfY - 18, itemX + 18, shelfY - 11, itemX + 21, shelfY - 8);
+            ctx.bezierCurveTo(itemX + 24, shelfY - 11, itemX + 24, shelfY - 18, itemX + 21, shelfY - 14);
+            ctx.fill();
+
+            // Stack of books horizontally next to the picture!
+            ctx.fillStyle = "#a855f7"; // purple book
+            ctx.fillRect(itemX + 36, shelfY - 6, 24, 6);
+            ctx.fillStyle = "#f59e0b"; // yellow book on top
+            ctx.fillRect(itemX + 38, shelfY - 11, 20, 5);
+          }
         }
       }
 
-      // Baseboard / Skirting board
+      // Baseboard / Skirting board (with natural cream molding styling)
       ctx.fillStyle = "#e2e8f0";
       ctx.fillRect(0, s.groundY - 12, canvas.width, 12);
       ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(0, s.groundY - 12, canvas.width, 2);
+      ctx.fillRect(0, s.groundY - 12, canvas.width, 2.5);
 
       // Floor & Carpet Layer
-      ctx.fillStyle = "#f5f5f4"; // wooden floor beige
+      ctx.fillStyle = "#ebd2b0"; // cozy warm natural wooden floor boards
       ctx.fillRect(0, s.groundY, canvas.width, canvas.height - s.groundY);
+
+      // Draw elegant wooden planks lines for a real home parquet feel
+      ctx.strokeStyle = "#cca685";
+      ctx.lineWidth = 1.5;
+      for (let py = s.groundY + 12; py < canvas.height; py += 15) {
+        ctx.beginPath();
+        ctx.moveTo(0, py);
+        ctx.lineTo(canvas.width, py);
+        ctx.stroke();
+      }
 
       // Carpet/Rug: Cosy textured loop runner rug
       ctx.fillStyle = "#fbcfe8"; // pastel pink rug base
@@ -751,6 +844,88 @@ export default function CatRunner({
           ctx.lineTo(obs.width / 2 + 6, 0);
           ctx.lineTo(obs.width / 2, 2);
           ctx.closePath();
+          ctx.fill();
+
+        } else if (obs.type === "hanging_lamp") {
+          // Cozy overhead hanging lamp (requires ducking!)
+          // Draw thin wire hanging from the top down to the lampshade
+          ctx.strokeStyle = "#475569";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(0, -obs.height / 2);
+          ctx.lineTo(0, -6);
+          ctx.stroke();
+
+          // Amber warm lampshade (bell-shaped dome)
+          ctx.fillStyle = "#ea580c"; // warm orange shade
+          ctx.beginPath();
+          ctx.moveTo(-14, 10);
+          ctx.quadraticCurveTo(-12, -8, 0, -8);
+          ctx.quadraticCurveTo(12, -8, 14, 10);
+          ctx.closePath();
+          ctx.fill();
+
+          // Warm glowing yellow bulb inside
+          ctx.fillStyle = "#fef08a";
+          ctx.beginPath();
+          ctx.arc(0, 11, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Soft ambient warm glow light cone spilling down
+          let glowGrad = ctx.createLinearGradient(0, 11, 0, obs.height / 2 + 20);
+          glowGrad.addColorStop(0, "rgba(253, 224, 71, 0.4)");
+          glowGrad.addColorStop(1, "rgba(253, 224, 71, 0)");
+          ctx.fillStyle = glowGrad;
+          ctx.beginPath();
+          ctx.moveTo(-5, 11);
+          ctx.lineTo(-24, obs.height / 2 + 20);
+          ctx.lineTo(24, obs.height / 2 + 20);
+          ctx.lineTo(5, 11);
+          ctx.closePath();
+          ctx.fill();
+
+        } else if (obs.type === "toy_mouse_dangling") {
+          // Cute dangling plush toy mouse (requires ducking!)
+          // Dangling elastic string
+          ctx.strokeStyle = "#94a3b8";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, -obs.height / 2);
+          ctx.lineTo(0, 0);
+          ctx.stroke();
+
+          // Plush mouse body
+          ctx.fillStyle = "#64748b"; // slate plush gray
+          ctx.beginPath();
+          ctx.ellipse(0, 14, 10, 14, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pink ears
+          ctx.fillStyle = "#fda4af"; // pink ears
+          ctx.beginPath();
+          ctx.arc(-8, 5, 4, 0, Math.PI * 2);
+          ctx.arc(8, 5, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Long thin tail waving upward
+          ctx.strokeStyle = "#fda4af";
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(0, -2);
+          ctx.quadraticCurveTo(-6, -14, -4, -22);
+          ctx.stroke();
+
+          // Little bead eyes
+          ctx.fillStyle = "#0f172a";
+          ctx.beginPath();
+          ctx.arc(-3, 16, 1.2, 0, Math.PI * 2);
+          ctx.arc(3, 16, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pink nose
+          ctx.fillStyle = "#f43f5e";
+          ctx.beginPath();
+          ctx.arc(0, 24, 2, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -1262,11 +1437,40 @@ export default function CatRunner({
         </div>
       )}
 
+      {/* On-screen control pads for highly responsive mobile, tablet & desktop mouse gameplay */}
+      {gameState === GameState.PLAYING && (
+        <div className="absolute inset-x-4 bottom-4 flex justify-between pointer-events-none z-20">
+          {/* Jump Button */}
+          <button
+            onTouchStart={(e) => { e.preventDefault(); handleJump(); }}
+            onMouseDown={(e) => { e.preventDefault(); handleJump(); }}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-slate-900/50 hover:bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
+            title="Стрибок (Space)"
+          >
+            <ArrowUp className="w-4 h-4 text-amber-300" />
+            <span className="tracking-tighter">СТРИБОК</span>
+          </button>
+
+          {/* Duck/Slide Button */}
+          <button
+            onTouchStart={(e) => { e.preventDefault(); handleDuck(true); }}
+            onTouchEnd={(e) => { e.preventDefault(); handleDuck(false); }}
+            onMouseDown={(e) => { e.preventDefault(); handleDuck(true); }}
+            onMouseUp={(e) => { e.preventDefault(); handleDuck(false); }}
+            onMouseLeave={() => handleDuck(false)}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-slate-900/50 hover:bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center text-white text-[9px] font-extrabold border border-white/20 active:scale-90 hover:scale-105 transition-all select-none cursor-pointer shadow-md"
+            title="Присісти (Arrow Down)"
+          >
+            <ArrowDown className="w-4 h-4 text-amber-300" />
+            <span className="tracking-tighter">ПРИСІСТИ</span>
+          </button>
+        </div>
+      )}
+
       {/* Touch action hints overlay for active gameplay */}
       {gameState === GameState.PLAYING && (
-        <div className="absolute inset-x-0 bottom-2 px-4 pointer-events-none flex justify-between text-[9px] text-slate-500 font-semibold opacity-40">
-          <span>Торкніться вгорі для стрибка ↑</span>
-          <span>Затисніть внизу для ковзання ↓</span>
+        <div className="absolute inset-x-0 bottom-2 px-4 pointer-events-none flex justify-center text-[9px] text-slate-500 font-semibold opacity-50">
+          <span>Клавіші: Стрілки ↑↓ або Пробіл</span>
         </div>
       )}
     </div>

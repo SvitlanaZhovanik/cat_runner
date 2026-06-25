@@ -63,7 +63,7 @@ export interface Obstacle {
   y: number;
   width: number;
   height: number;
-  type: "box" | "yarn" | "bird" | "scratch_post";
+  type: "box" | "yarn" | "bird" | "scratch_post" | "hanging_lamp" | "balloon" | "toy_mouse_dangling";
   speedMultiplier: number;
   rotation: number; // for yarn ball
   pulse: number; // for scaling effects
